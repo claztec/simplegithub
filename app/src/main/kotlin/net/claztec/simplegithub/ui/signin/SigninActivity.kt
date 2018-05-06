@@ -7,10 +7,8 @@ import android.support.customtabs.CustomTabsIntent
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.Toast
-
+import kotlinx.android.synthetic.main.activity_signin.*
 import net.claztec.simplegithub.BuildConfig
 import net.claztec.simplegithub.R
 import net.claztec.simplegithub.api.AuthApi
@@ -18,16 +16,11 @@ import net.claztec.simplegithub.api.GithubApiProvider
 import net.claztec.simplegithub.api.model.GithubAccessToken
 import net.claztec.simplegithub.data.AuthTokenProvider
 import net.claztec.simplegithub.ui.main.MainActivity
-
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class SigninActivity : AppCompatActivity() {
-
-    internal lateinit var btnStart: Button
-
-    internal lateinit var progressBar: ProgressBar
 
     internal lateinit var api: AuthApi
 
@@ -39,10 +32,7 @@ class SigninActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signin)
 
-        btnStart = findViewById(R.id.btnActivitySignInStart)
-        progressBar = findViewById(R.id.pbActivitySignIn)
-
-        btnStart.setOnClickListener {
+        btnActivitySignInStart.setOnClickListener {
             val authUri = Uri.Builder().scheme("https").authority("github.com")
                     .appendPath("login")
                     .appendPath("oauth")
@@ -112,13 +102,13 @@ class SigninActivity : AppCompatActivity() {
     }
 
     private fun hideProgress() {
-        btnStart.visibility = View.VISIBLE
-        progressBar.visibility = View.GONE
+        btnActivitySignInStart.visibility = View.VISIBLE
+        pbActivitySignIn.visibility = View.GONE
     }
 
     private fun showProgress() {
-        btnStart.visibility = View.GONE
-        progressBar.visibility = View.VISIBLE
+        btnActivitySignInStart.visibility = View.GONE
+        pbActivitySignIn.visibility = View.VISIBLE
     }
 
     private fun launchMainActivity() {
