@@ -16,7 +16,6 @@ import net.claztec.simplegithub.ui.GlideApp
 
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 import retrofit2.Call
