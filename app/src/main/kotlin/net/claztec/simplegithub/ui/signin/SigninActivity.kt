@@ -11,7 +11,6 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_signin.*
 import net.claztec.simplegithub.BuildConfig
 import net.claztec.simplegithub.R
-import net.claztec.simplegithub.api.AuthApi
 import net.claztec.simplegithub.api.model.GithubAccessToken
 import net.claztec.simplegithub.api.provideAuthApi
 import net.claztec.simplegithub.data.AuthTokenProvider
@@ -22,9 +21,9 @@ import retrofit2.Response
 
 class SigninActivity : AppCompatActivity() {
 
-    internal lateinit var api: AuthApi
+    internal val api by lazy { provideAuthApi() }
 
-    internal lateinit var authTokenProvider: AuthTokenProvider
+    internal val authTokenProvider by lazy { AuthTokenProvider(this) }
 
     internal lateinit var accessTokenCall: Call<GithubAccessToken>
 
@@ -43,9 +42,6 @@ class SigninActivity : AppCompatActivity() {
             val intent = CustomTabsIntent.Builder().build()
             intent.launchUrl(this@SigninActivity, authUri)
         }
-
-        api = provideAuthApi()
-        authTokenProvider = AuthTokenProvider(this)
 
         Log.d(TAG, "token: " + authTokenProvider.token!!)
 
