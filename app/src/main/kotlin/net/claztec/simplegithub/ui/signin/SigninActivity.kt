@@ -25,7 +25,7 @@ class SigninActivity : AppCompatActivity() {
 
     internal val authTokenProvider by lazy { AuthTokenProvider(this) }
 
-    internal lateinit var accessTokenCall: Call<GithubAccessToken>
+    internal var accessTokenCall: Call<GithubAccessToken>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +71,7 @@ class SigninActivity : AppCompatActivity() {
 
         accessTokenCall = api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
 
-        accessTokenCall.enqueue(object : Callback<GithubAccessToken> {
+        accessTokenCall!!.enqueue(object : Callback<GithubAccessToken> {
             override fun onResponse(call: Call<GithubAccessToken>, response: Response<GithubAccessToken>) {
                 hideProgress()
 
