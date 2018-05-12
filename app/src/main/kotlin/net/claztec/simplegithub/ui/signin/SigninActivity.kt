@@ -12,8 +12,8 @@ import kotlinx.android.synthetic.main.activity_signin.*
 import net.claztec.simplegithub.BuildConfig
 import net.claztec.simplegithub.R
 import net.claztec.simplegithub.api.AuthApi
-import net.claztec.simplegithub.api.GithubApiProvider
 import net.claztec.simplegithub.api.model.GithubAccessToken
+import net.claztec.simplegithub.api.provideAuthApi
 import net.claztec.simplegithub.data.AuthTokenProvider
 import net.claztec.simplegithub.ui.main.MainActivity
 import retrofit2.Call
@@ -44,7 +44,7 @@ class SigninActivity : AppCompatActivity() {
             intent.launchUrl(this@SigninActivity, authUri)
         }
 
-        api = GithubApiProvider.provideAuthApi()
+        api = provideAuthApi()
         authTokenProvider = AuthTokenProvider(this)
 
         Log.d(TAG, "token: " + authTokenProvider.token!!)

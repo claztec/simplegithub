@@ -6,8 +6,8 @@ import android.view.View
 import kotlinx.android.synthetic.main.activity_repository.*
 import net.claztec.simplegithub.R
 import net.claztec.simplegithub.api.GithubApi
-import net.claztec.simplegithub.api.GithubApiProvider
 import net.claztec.simplegithub.api.model.GithubRepo
+import net.claztec.simplegithub.api.provideGithubApi
 import net.claztec.simplegithub.ui.GlideApp
 import retrofit2.Call
 import retrofit2.Callback
@@ -32,7 +32,7 @@ class RepositoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_repository)
 
-        api = GithubApiProvider.provideGithubApi(this)
+        api = provideGithubApi(this)
 
         val login = intent.getStringExtra(KEY_USER_LOGIN)
                 ?: throw IllegalArgumentException("No login info exists in extras")

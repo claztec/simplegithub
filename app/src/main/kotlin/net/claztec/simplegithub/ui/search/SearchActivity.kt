@@ -12,9 +12,9 @@ import android.view.inputmethod.InputMethodManager
 import kotlinx.android.synthetic.main.activity_search.*
 import net.claztec.simplegithub.R
 import net.claztec.simplegithub.api.GithubApi
-import net.claztec.simplegithub.api.GithubApiProvider
 import net.claztec.simplegithub.api.model.GithubRepo
 import net.claztec.simplegithub.api.model.RepoSearchResponse
+import net.claztec.simplegithub.api.provideGithubApi
 import net.claztec.simplegithub.ui.repo.RepositoryActivity
 import retrofit2.Call
 import retrofit2.Callback
@@ -42,7 +42,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
         rvActivitySearchList.layoutManager = LinearLayoutManager(this)
         rvActivitySearchList.adapter = adapter
 
-        api = GithubApiProvider.provideGithubApi(this)
+        api = provideGithubApi(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
