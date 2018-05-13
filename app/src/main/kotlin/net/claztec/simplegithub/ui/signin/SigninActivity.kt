@@ -15,6 +15,10 @@ import net.claztec.simplegithub.api.model.GithubAccessToken
 import net.claztec.simplegithub.api.provideAuthApi
 import net.claztec.simplegithub.data.AuthTokenProvider
 import net.claztec.simplegithub.ui.main.MainActivity
+import org.jetbrains.anko.clearTask
+import org.jetbrains.anko.intentFor
+import org.jetbrains.anko.longToast
+import org.jetbrains.anko.newTask
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -93,8 +97,7 @@ class SigninActivity : AppCompatActivity() {
     }
 
     private fun showError(throwable: Throwable) {
-        Toast.makeText(this, throwable.message, Toast.LENGTH_LONG).show()
-
+        longToast(throwable.message ?: "No message available")
     }
 
     private fun hideProgress() {
@@ -109,9 +112,7 @@ class SigninActivity : AppCompatActivity() {
 
     private fun launchMainActivity() {
         Log.d(TAG, "런치 메인 액티비티")
-        startActivity(Intent(this@SigninActivity, MainActivity::class.java)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        startActivity(intentFor<MainActivity>().clearTask().newTask())
     }
 
     companion object {
