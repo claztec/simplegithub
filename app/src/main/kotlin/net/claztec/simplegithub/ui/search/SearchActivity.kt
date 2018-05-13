@@ -25,7 +25,9 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
     internal lateinit var searchView: SearchView
 
-    internal val adapter by lazy { SearchAdapter().apply { setItemClickListener(this@SearchActivity) } }
+    internal val adapter by lazy {
+        SearchAdapter().apply { setItemClickListener(this@SearchActivity) }
+    }
 
     internal val api by lazy { provideGithubApi(this) }
 
@@ -37,7 +39,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
         with (rvActivitySearchList) {
             layoutManager = LinearLayoutManager(this@SearchActivity)
-            adapter = adapter
+            adapter = this@SearchActivity.adapter
         }
 
     }
