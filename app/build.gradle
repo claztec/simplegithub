@@ -45,6 +45,13 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "org.jetbrains.anko:anko-commons:$ankoVersion"
 
+    // retrofit 에서 받은 응답을 옵저버블로 변환
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
+
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+
+
     annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
 }
