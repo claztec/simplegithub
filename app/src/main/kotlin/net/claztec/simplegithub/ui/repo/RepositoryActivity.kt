@@ -3,6 +3,8 @@ package net.claztec.simplegithub.ui.repo
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_repository.*
 import net.claztec.simplegithub.R
 import net.claztec.simplegithub.api.model.GithubRepo
@@ -26,7 +28,8 @@ class RepositoryActivity : AppCompatActivity() {
 
     internal val api by lazy { provideGithubApi(this) }
 
-    internal var repoCall: Call<GithubRepo>? = null
+//    internal var repoCall: Call<GithubRepo>? = null
+    internal val disposables = CompositeDisposable()
 
     internal val dateFormatInResponse = SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
@@ -48,19 +51,17 @@ class RepositoryActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        repoCall?.run { cancel() }
+//        repoCall?.run { cancel() }
+        disposables.clear()
     }
 
     private fun showRepositoryInfo(login: String, repoName: String) {
-        showProgress()
-
-        repoCall = api.getRepository(login, repoName)
-        repoCall!!.enqueue(object : Callback<GithubRepo> {
-            override fun onResponse(call: Call<GithubRepo>, response: Response<GithubRepo>) {
-                hideProgress(true)
-
-                val repo = response.body()
-                if (response.isSuccessful && null != repo) {
+        disposables.add(api.getRepository(login, repoName)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { showProgress() }
+                .doOnError { hideProgress(false) }
+                .doOnComplete { hideProgress(true) }
+                .subscribe({ repo ->
                     GlideApp.with(this@RepositoryActivity)
                             .load(repo.owner.avatarUrl)
                             .into(ivActivityRepositoryProfile)
@@ -85,17 +86,9 @@ class RepositoryActivity : AppCompatActivity() {
                     } catch (e: ParseException) {
                         tvActivityRepositoryLastUpdate.text = getString(R.string.unknown)
                     }
-
-                } else {
-                    showError("Not successful: " + response.message())
-                }
-            }
-
-            override fun onFailure(call: Call<GithubRepo>, t: Throwable) {
-                hideProgress(false)
-                showError(t.message)
-            }
-        })
+                }) {
+                    showError(it.message)
+                })
     }
 
     private fun showProgress() {

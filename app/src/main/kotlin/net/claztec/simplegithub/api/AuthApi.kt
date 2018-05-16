@@ -1,8 +1,7 @@
 package net.claztec.simplegithub.api
 
+import io.reactivex.Observable
 import net.claztec.simplegithub.api.model.GithubAccessToken
-
-import retrofit2.Call
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.Headers
@@ -17,5 +16,5 @@ interface AuthApi {
             @Field("client_id") clientId: String,
             @Field("client_secret") clientSecret: String,
             @Field("code") code: String
-    ): Call<GithubAccessToken>
+    ): Observable<GithubAccessToken>
 }

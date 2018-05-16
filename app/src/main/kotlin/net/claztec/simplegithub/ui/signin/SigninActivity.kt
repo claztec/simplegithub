@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_signin.*
 import net.claztec.simplegithub.BuildConfig
 import net.claztec.simplegithub.R
@@ -29,7 +31,8 @@ class SigninActivity : AppCompatActivity() {
 
     internal val authTokenProvider by lazy { AuthTokenProvider(this) }
 
-    internal var accessTokenCall: Call<GithubAccessToken>? = null
+//    internal var accessTokenCall: Call<GithubAccessToken>? = null
+    internal val disposables = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,27 +76,23 @@ class SigninActivity : AppCompatActivity() {
     private fun getAccessToken(code: String) {
         showProgress()
 
-        accessTokenCall = api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
-
-        accessTokenCall!!.enqueue(object : Callback<GithubAccessToken> {
-            override fun onResponse(call: Call<GithubAccessToken>, response: Response<GithubAccessToken>) {
-                hideProgress()
-
-                val token = response.body()
-                Log.d(TAG, token!!.accessToken)
-                if (response.isSuccessful && null != token) {
-                    authTokenProvider.updateToken(token.accessToken)
+        disposables.add(api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
+                .map { it.accessToken }
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe{ showProgress() }
+                .doOnTerminate { hideProgress() }
+                .subscribe({ token ->
+                    authTokenProvider.updateToken(token)
                     launchMainActivity()
-                } else {
-                    showError(IllegalStateException("Not Successfull: " + response.message()))
-                }
-            }
+                }) {
+                    showError(it)
+                })
 
-            override fun onFailure(call: Call<GithubAccessToken>, t: Throwable) {
-                hideProgress()
-                showError(t)
-            }
-        })
+    }
+
+    override fun onStop() {
+        super.onStop()
+        disposables.clear()
     }
 
     private fun showError(throwable: Throwable) {
