@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -34,6 +35,8 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 //    internal var searchCall: Call<RepoSearchResponse>? = null
     internal val disposables = CompositeDisposable()
 
+    internal val viewDisposable = CompositeDisposable()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
@@ -50,39 +53,20 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
         menuInflater.inflate(R.menu.menu_activity_search, menu)
         menuSearch = menu.findItem(R.id.menu_activity_search_query)
 
-        searchView = (menuSearch.actionView as SearchView).apply {
-            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String): Boolean {
+        searchView = menuSearch.actionView as SearchView
+
+        viewDisposable += RxSearchView.queryTextChangeEvents(searchView)
+                .filter { it.isSubmitted }
+                .map { it.queryText() }
+                .filter { it.isNotEmpty() }
+                .map { it.toString() }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { query ->
                     updateTitle(query)
                     hideSoftKeyboard()
                     collapseSearchView()
                     searchRepository(query)
-                    return true
                 }
-
-                override fun onQueryTextChange(newText: String): Boolean {
-                    return false
-                }
-            })
-        }
-
-        with (menuSearch) {
-            setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-                override fun onMenuItemActionExpand(menuItem: MenuItem): Boolean {
-                    return true
-                }
-
-                override fun onMenuItemActionCollapse(menuItem: MenuItem): Boolean {
-                    if ("" == searchView.query) {
-                        finish()
-                    }
-                    return true
-                }
-            })
-
-            expandActionView()
-        }
-
 
 
         return true
@@ -94,6 +78,10 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 //            cancel()
 //        }
         disposables.clear()
+
+        if (isFinishing) {
+            viewDisposable.clear()
+        }
     }
 
     private fun searchRepository(query: String) {
