@@ -8,7 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
+import com.jakewharton.rxbinding2.support.v7.widget.queryTextChangeEvents
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -55,7 +55,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
         searchView = menuSearch.actionView as SearchView
 
-        viewDisposable += RxSearchView.queryTextChangeEvents(searchView)
+        viewDisposable += searchView.queryTextChangeEvents()
                 .filter { it.isSubmitted }
                 .map { it.queryText() }
                 .filter { it.isNotEmpty() }
