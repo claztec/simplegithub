@@ -7,23 +7,19 @@ import android.support.customtabs.CustomTabsIntent
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_signin.*
 import net.claztec.simplegithub.BuildConfig
 import net.claztec.simplegithub.R
-import net.claztec.simplegithub.api.model.GithubAccessToken
 import net.claztec.simplegithub.api.provideAuthApi
 import net.claztec.simplegithub.data.AuthTokenProvider
+import net.claztec.simplegithub.extensions.plusAssign
 import net.claztec.simplegithub.ui.main.MainActivity
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.newTask
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class SigninActivity : AppCompatActivity() {
 
@@ -76,7 +72,7 @@ class SigninActivity : AppCompatActivity() {
     private fun getAccessToken(code: String) {
         showProgress()
 
-        disposables.add(api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
+        disposables += api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
                 .map { it.accessToken }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe{ showProgress() }
@@ -86,7 +82,7 @@ class SigninActivity : AppCompatActivity() {
                     launchMainActivity()
                 }) {
                     showError(it)
-                })
+                }
 
     }
 

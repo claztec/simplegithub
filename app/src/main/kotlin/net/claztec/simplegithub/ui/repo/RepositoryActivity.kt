@@ -7,12 +7,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_repository.*
 import net.claztec.simplegithub.R
-import net.claztec.simplegithub.api.model.GithubRepo
 import net.claztec.simplegithub.api.provideGithubApi
+import net.claztec.simplegithub.extensions.plusAssign
 import net.claztec.simplegithub.ui.GlideApp
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -56,7 +53,7 @@ class RepositoryActivity : AppCompatActivity() {
     }
 
     private fun showRepositoryInfo(login: String, repoName: String) {
-        disposables.add(api.getRepository(login, repoName)
+        disposables += api.getRepository(login, repoName)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { showProgress() }
                 .doOnError { hideProgress(false) }
@@ -88,7 +85,7 @@ class RepositoryActivity : AppCompatActivity() {
                     }
                 }) {
                     showError(it.message)
-                })
+                }
     }
 
     private fun showProgress() {

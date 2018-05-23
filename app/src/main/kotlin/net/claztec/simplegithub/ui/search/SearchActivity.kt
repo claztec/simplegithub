@@ -14,12 +14,9 @@ import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_search.*
 import net.claztec.simplegithub.R
 import net.claztec.simplegithub.api.model.GithubRepo
-import net.claztec.simplegithub.api.model.RepoSearchResponse
 import net.claztec.simplegithub.api.provideGithubApi
+import net.claztec.simplegithub.extensions.plusAssign
 import net.claztec.simplegithub.ui.repo.RepositoryActivity
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import org.jetbrains.anko.startActivity
 
 class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
@@ -100,7 +97,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     }
 
     private fun searchRepository(query: String) {
-        disposables.add(api.searchRepository(query)
+        disposables += api.searchRepository(query)
                 .flatMap {
                     if (0 == it.totalCount) {
                         Observable.error(IllegalStateException("No search result"))
@@ -122,7 +119,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
                     }
                 }) {
                     showError(it.message)
-                })
+                }
     }
 
     private fun showError(message: String?) {
