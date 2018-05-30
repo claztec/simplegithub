@@ -8,13 +8,13 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_signin.*
 import net.claztec.simplegithub.BuildConfig
 import net.claztec.simplegithub.R
 import net.claztec.simplegithub.api.provideAuthApi
 import net.claztec.simplegithub.data.AuthTokenProvider
 import net.claztec.simplegithub.extensions.plusAssign
+import net.claztec.simplegithub.rx.AutoClearedDisposable
 import net.claztec.simplegithub.ui.main.MainActivity
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
@@ -28,7 +28,7 @@ class SigninActivity : AppCompatActivity() {
     internal val authTokenProvider by lazy { AuthTokenProvider(this) }
 
 //    internal var accessTokenCall: Call<GithubAccessToken>? = null
-    internal val disposables = CompositeDisposable()
+    internal val disposables = AutoClearedDisposable(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,7 +88,6 @@ class SigninActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        disposables.clear()
     }
 
     private fun showError(throwable: Throwable) {

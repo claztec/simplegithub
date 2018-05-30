@@ -19,4 +19,6 @@ ext {
     rxAndroidVersion = '2.0.2'
     rxJavaVersion = '2.1.13'
     rxBindingVersion = '2.1.1'
+
+    archComponentVersion = '1.1.1'
 }

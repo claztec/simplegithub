@@ -11,12 +11,12 @@ import android.view.inputmethod.InputMethodManager
 import com.jakewharton.rxbinding2.support.v7.widget.queryTextChangeEvents
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_search.*
 import net.claztec.simplegithub.R
 import net.claztec.simplegithub.api.model.GithubRepo
 import net.claztec.simplegithub.api.provideGithubApi
 import net.claztec.simplegithub.extensions.plusAssign
+import net.claztec.simplegithub.rx.AutoClearedDisposable
 import net.claztec.simplegithub.ui.repo.RepositoryActivity
 import org.jetbrains.anko.startActivity
 
@@ -32,10 +32,9 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
     internal val api by lazy { provideGithubApi(this) }
 
-//    internal var searchCall: Call<RepoSearchResponse>? = null
-    internal val disposables = CompositeDisposable()
+    internal val disposables = AutoClearedDisposable(this)
 
-    internal val viewDisposable = CompositeDisposable()
+    internal val viewDisposable = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,18 +69,6 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
 
         return true
-    }
-
-    override fun onStop() {
-        super.onStop()
-//        searchCall?.run {
-//            cancel()
-//        }
-        disposables.clear()
-
-        if (isFinishing) {
-            viewDisposable.clear()
-        }
     }
 
     private fun searchRepository(query: String) {

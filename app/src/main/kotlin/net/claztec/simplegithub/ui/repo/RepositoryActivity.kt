@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_repository.*
 import net.claztec.simplegithub.R
 import net.claztec.simplegithub.api.provideGithubApi
 import net.claztec.simplegithub.extensions.plusAssign
+import net.claztec.simplegithub.rx.AutoClearedDisposable
 import net.claztec.simplegithub.ui.GlideApp
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -26,7 +26,7 @@ class RepositoryActivity : AppCompatActivity() {
     internal val api by lazy { provideGithubApi(this) }
 
 //    internal var repoCall: Call<GithubRepo>? = null
-    internal val disposables = CompositeDisposable()
+    internal val disposables = AutoClearedDisposable(this)
 
     internal val dateFormatInResponse = SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
@@ -48,8 +48,6 @@ class RepositoryActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-//        repoCall?.run { cancel() }
-        disposables.clear()
     }
 
     private fun showRepositoryInfo(login: String, repoName: String) {
