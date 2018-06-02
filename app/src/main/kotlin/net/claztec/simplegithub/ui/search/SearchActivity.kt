@@ -9,12 +9,17 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import com.jakewharton.rxbinding2.support.v7.widget.queryTextChangeEvents
+import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_search.*
 import net.claztec.simplegithub.R
 import net.claztec.simplegithub.api.model.GithubRepo
 import net.claztec.simplegithub.api.provideGithubApi
+import net.claztec.simplegithub.data.SearchHistoryDao
+import net.claztec.simplegithub.data.provideSearchHistoryDao
 import net.claztec.simplegithub.extensions.plusAssign
 import net.claztec.simplegithub.rx.AutoClearedDisposable
 import net.claztec.simplegithub.ui.repo.RepositoryActivity
@@ -25,6 +30,10 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     internal lateinit var menuSearch: MenuItem
 
     internal lateinit var searchView: SearchView
+
+    internal val searchHistoryDao by lazy {
+        provideSearchHistoryDao(this)
+    }
 
     internal val adapter by lazy {
         SearchAdapter().apply { setItemClickListener(this@SearchActivity) }
@@ -149,6 +158,11 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     }
 
     override fun onItemClick(repository: GithubRepo) {
+        disposables += Completable
+                .fromCallable{ searchHistoryDao.add(repository) }
+                .subscribeOn(Schedulers.io())
+                .subscribe()
+
         startActivity<RepositoryActivity>(
                 RepositoryActivity.KEY_USER_LOGIN to repository.owner.login,
                 RepositoryActivity.KEY_REPO_NAME to repository.name)

@@ -20,5 +20,5 @@ ext {
     rxJavaVersion = '2.1.13'
     rxBindingVersion = '2.1.1'
 
-    archComponentVersion = '1.1.1'
+    archComponentVersion = '1.1.0'
 }

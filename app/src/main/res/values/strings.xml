@@ -14,4 +14,5 @@
     <string name="unknown">Unknown</string>
     <string name="view_repository">View repository</string>
     <string name="title_activity_signin">SigninActivity</string>
+    <string name="clear_all">Clear all</string>
 </resources>
