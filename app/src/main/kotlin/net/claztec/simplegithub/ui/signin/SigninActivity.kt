@@ -46,7 +46,6 @@ class SigninActivity : AppCompatActivity() {
             intent.launchUrl(this@SigninActivity, authUri)
         }
 
-        Log.d(TAG, "token: " + authTokenProvider.token!!)
 
         if (null != authTokenProvider.token) {
             launchMainActivity()
