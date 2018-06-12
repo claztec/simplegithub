@@ -1,5 +1,6 @@
 package net.claztec.simplegithub.ui.signin
 
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -27,12 +28,24 @@ class SigninActivity : AppCompatActivity() {
 
     internal val authTokenProvider by lazy { AuthTokenProvider(this) }
 
-//    internal var accessTokenCall: Call<GithubAccessToken>? = null
     internal val disposables = AutoClearedDisposable(this)
+
+    internal val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+
+//    internal val viewModelFactory by lazy { SigninViewModelFactory(provideAuthApi(), AuthTokenProvider(this)) }
+//
+//    lateinit var viewModel: SignInViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signin)
+
+//        viewModel = ViewModelProviders.of(this, viewModelFactory)[SignInViewModel::class.java]
+
+        lifecycle += disposables
+
+        lifecycle += viewDisposables
+
 
         btnActivitySignInStart.setOnClickListener {
             val authUri = Uri.Builder().scheme("https").authority("github.com")
