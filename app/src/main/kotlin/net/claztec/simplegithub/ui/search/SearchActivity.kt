@@ -1,5 +1,6 @@
 package net.claztec.simplegithub.ui.search
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -31,28 +32,67 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
     internal lateinit var searchView: SearchView
 
-    internal val searchHistoryDao by lazy {
-        provideSearchHistoryDao(this)
-    }
-
     internal val adapter by lazy {
         SearchAdapter().apply { setItemClickListener(this@SearchActivity) }
     }
-
-    internal val api by lazy { provideGithubApi(this) }
 
     internal val disposables = AutoClearedDisposable(this)
 
     internal val viewDisposable = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
+    internal val viewModelFactory by lazy { SearchViewModelFactory(provideGithubApi(this), provideSearchHistoryDao(this)) }
+
+    lateinit var viewModel: SearchViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory)[SearchViewModel::class.java]
+
+        lifecycle += disposables
+        lifecycle += viewDisposable
+
+        viewDisposable += viewModel.searchResult
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { items ->
+                    with(adapter) {
+                        if (items.isEmpty) {
+                            clearItems()
+                        } else {
+                            setItems(items.value)
+                        }
+                        notifyDataSetChanged()
+                    }
+                }
+
+        viewDisposable += viewModel.message
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { message ->
+                    if (message.isEmpty) {
+                        hideError()
+                    } else {
+                        showError(message.value)
+                    }
+                }
+
+        viewDisposable += viewModel.isLoading
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { isLoading ->
+                    if (isLoading) {
+                        showProgress()
+                    } else {
+                        hideProgress()
+                    }
+                }
+
 
         with (rvActivitySearchList) {
             layoutManager = LinearLayoutManager(this@SearchActivity)
             adapter = this@SearchActivity.adapter
         }
+
+
 
     }
 
@@ -76,34 +116,21 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
                     searchRepository(query)
                 }
 
+        viewDisposable += viewModel.lastSearchKeyword
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { keyword ->
+                    if (keyword.isEmpty) {
+                        menuSearch.expandActionView()
+                    } else {
+                        updateTitle(keyword.value)
+                    }
+                }
 
         return true
     }
 
     private fun searchRepository(query: String) {
-        disposables += api.searchRepository(query)
-                .flatMap {
-                    if (0 == it.totalCount) {
-                        Observable.error(IllegalStateException("No search result"))
-                    } else {
-                        Observable.just(it.items)
-                    }
-                }
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    clearResults()
-                    hideError()
-                    showProgress()
-                }
-                .doOnTerminate { hideProgress() }
-                .subscribe({items ->
-                    with(adapter) {
-                        setItems(items)
-                        notifyDataSetChanged()
-                    }
-                }) {
-                    showError(it.message)
-                }
+        disposables += viewModel.searchRepository(query)
     }
 
     private fun showError(message: String?) {
@@ -125,13 +152,6 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
         with (tvActivitySearchMessage) {
             text = ""
             visibility = View.GONE
-        }
-    }
-
-    private fun clearResults() {
-        with (adapter) {
-            clearItems()
-            notifyDataSetChanged()
         }
     }
 
@@ -158,11 +178,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     }
 
     override fun onItemClick(repository: GithubRepo) {
-        disposables += Completable
-                .fromCallable{ searchHistoryDao.add(repository) }
-                .subscribeOn(Schedulers.io())
-                .subscribe()
-
+        disposables += viewModel.addToSearchHistory(repository)
         startActivity<RepositoryActivity>(
                 RepositoryActivity.KEY_USER_LOGIN to repository.owner.login,
                 RepositoryActivity.KEY_REPO_NAME to repository.name)

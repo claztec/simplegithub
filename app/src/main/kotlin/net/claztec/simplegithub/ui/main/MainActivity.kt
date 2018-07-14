@@ -31,10 +31,6 @@ class MainActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
         }
     }
 
-    internal val searchHistoryDao by lazy {
-        provideSearchHistoryDao(this)
-    }
-
     internal val disposables = AutoClearedDisposable(this)
 
     internal val viewDisposable = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
