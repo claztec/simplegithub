@@ -1,14 +1,27 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 26
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+    compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "net.claztec.simplegithub"
-        minSdkVersion 19
-        targetSdkVersion 26
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "GITHUB_CLIENT_ID",
+                project.properties["GITHUB_CLIENT_ID"] ?: "\"NOT_FOUND\""
+
+        buildConfigField "String", "GITHUB_CLIENT_SECRET",
+                project.properties["GITHUB_CLIENT_SECRET"] ?: "\"NOT_FOUND\""
+
     }
     buildTypes {
         release {
@@ -19,10 +32,32 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "com.android.support:appcompat-v7:$supportLibVersion"
+    implementation "com.android.support:customtabs:$supportLibVersion"
+    implementation "com.android.support:design:$supportLibVersion"
+    implementation "com.android.support:recyclerview-v7:$supportLibVersion"
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "org.jetbrains.anko:anko-commons:$ankoVersion"
+
+    // retrofit 에서 받은 응답을 옵저버블로 변환
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
+
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7-kotlin:$rxBindingVersion"
+
+    implementation "android.arch.lifecycle:extensions:$archComponentVersion"
+    implementation "android.arch.persistence.room:runtime:$archComponentVersion"
+    implementation "android.arch.persistence.room:rxjava2:$archComponentVersion"
+
+    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+    kapt "com.github.bumptech.glide:compiler:$glideVersion"
+    kapt "android.arch.lifecycle:compiler:$archComponentVersion"
+    kapt "android.arch.persistence.room:compiler:$archComponentVersion"
 }
